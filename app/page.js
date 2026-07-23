@@ -183,7 +183,7 @@ export default function Home() {
               ],
               [
                 "Correct print size",
-                "Exports carry real DPI metadata, so a 35 × 45 mm photo measures 35 × 45 mm when it comes off the printer.",
+                "Download a PDF whose page is exactly the size of your photo paper, so 35 × 45 mm measures 35 × 45 mm when it comes off the printer.",
               ],
               [
                 "8 photos per 4R sheet",

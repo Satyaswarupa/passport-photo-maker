@@ -29,10 +29,10 @@ Paper orientation is chosen automatically — whichever way round fits more phot
 
 ## Printing at the correct size
 
-Exported files carry real DPI metadata — a JFIF density header on JPEG, a `pHYs` chunk on PNG (`app/lib/dpiMetadata.js`). Without it `canvas.toBlob()` emits files with no physical size at all, and every desktop print path assumes 72 DPI and prints the sheet about four times too large.
+**Print the PDF, not the image.** A raster file can only *suggest* its physical size through DPI metadata, and print dialogs routinely override it — Windows Photos defaults to "Full page photo", browsers to "Fit to page" — which rescales the sheet and ruins the millimetres. A PDF page has absolute geometry, so every reader reproduces it exactly.
 
-- **Photo lab / print shop** — upload the JPG and order a 4R print. The pixel dimensions match 4R exactly (1800 × 1200 at 300 DPI), so it needs no adjustment. This is the reliable path.
-- **Home printer** — set scale to **100%** and turn off "fit to page" / "fit to printable area". Browsers apply a few percent of shrink by default, which is enough to turn a 45 mm photo into a 43 mm one. No CSS can override this, so the print window shows a checklist and waits for you to press Print rather than opening the dialog over the top of it.
+- **Home printer → PDF.** `app/lib/pdf.js` writes a minimal PDF whose `MediaBox` is the sheet size in points (4R → exactly 432 × 288 pt) with the JPEG embedded via `/DCTDecode`, so the compressed bytes are stored verbatim: no recompression, no quality loss. In the print dialog choose **Actual size** (or "100%", or "Scale: None"). A 4R page printed on A4 at actual size gives a correctly sized 6 × 4 in block to cut out.
+- **Photo lab → JPG.** The pixel dimensions match 4R exactly (1800 × 1200 at 300 DPI) and the file carries real DPI metadata — a JFIF density header on JPEG, a `pHYs` chunk on PNG (`app/lib/dpiMetadata.js`). Without that patch `canvas.toBlob()` emits files with no physical size at all and viewers assume 72 DPI, printing the sheet about four times too large.
 
 Always measure one photo after the first print.
 

@@ -5,6 +5,7 @@ import Dropzone from "./Dropzone";
 import PhotoAdjuster from "./PhotoAdjuster";
 import SheetPreview from "./SheetPreview";
 import { removePhotoBackground } from "../lib/backgroundRemoval";
+import { jpegBlobToPdf } from "../lib/pdf";
 import {
   BG_PRESETS,
   DPI_OPTIONS,
@@ -21,7 +22,6 @@ import {
   loadBitmap,
   mmToPx,
   normalizeUpload,
-  printSheet,
   renderSinglePhoto,
 } from "../lib/render";
 
@@ -102,6 +102,29 @@ export default function PassportStudio() {
     downloadBlob(blob, `passport-${photo.id}-${paper.id}-sheet.${ext}`);
   };
 
+  /**
+   * The reliable print path. A PDF page carries absolute physical dimensions,
+   * so printing it at "Actual size" reproduces the millimetres exactly —
+   * unlike a JPEG, whose DPI tag print dialogs routinely override.
+   */
+  const sheetPdfBlob = async () => {
+    const canvas = sheetCanvasRef.current;
+    if (!canvas) return null;
+    const jpegBlob = await canvasToBlob(canvas, { type: "image/jpeg", dpi });
+    return jpegBlobToPdf(jpegBlob, {
+      widthPx: canvas.width,
+      heightPx: canvas.height,
+      widthMm: layout.sheetW,
+      heightMm: layout.sheetH,
+      title: `${effectiveCopies} passport photos ${photo.w}x${photo.h}mm on ${paper.label}`,
+    });
+  };
+
+  const downloadPdf = async () => {
+    const blob = await sheetPdfBlob();
+    if (blob) downloadBlob(blob, `passport-${photo.id}-${paper.id}-sheet.pdf`);
+  };
+
   const downloadSingle = async () => {
     if (!activeBitmap) return;
     const canvas = document.createElement("canvas");
@@ -110,19 +133,28 @@ export default function PassportStudio() {
     downloadBlob(blob, `passport-${photo.id}.png`);
   };
 
+  /**
+   * Open the PDF in a new tab and let the built-in viewer print it. The PDF
+   * carries the page size, so the only thing the user has to get right is
+   * choosing "Actual size" instead of "Fit to page".
+   */
   const print = async () => {
-    const canvas = sheetCanvasRef.current;
-    if (!canvas) return;
     setNotice(null);
-    const blob = await canvasToBlob(canvas, { type: "image/jpeg", dpi });
+    const blob = await sheetPdfBlob();
+    if (!blob) return;
     const url = URL.createObjectURL(blob);
-    const opened = printSheet(url, layout.sheetW, layout.sheetH, `${photo.w} × ${photo.h} mm`);
+    const opened = window.open(url, "_blank");
     if (!opened) {
       URL.revokeObjectURL(url);
       setNotice(
-        "Your browser blocked the print window. Allow popups for this site, or download the sheet and print that file instead."
+        "Your browser blocked the new tab. Allow popups for this site, or use “Download PDF” and print that file."
       );
+      return;
     }
+    setNotice(
+      "The PDF opened in a new tab. When you print it, set Scale to “Actual size” (not “Fit to page”)."
+    );
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
   };
 
   /* ------------------------------- empty state ------------------------------ */
@@ -316,42 +348,67 @@ export default function PassportStudio() {
           </Panel>
 
           <Panel title="Download">
-            <div className="flex flex-wrap gap-3">
+            <div className="mb-4 flex flex-wrap gap-3">
               <button
-                onClick={() => downloadSheet("image/jpeg")}
+                onClick={downloadPdf}
                 disabled={layout.capacity === 0}
                 className="nm-btn nm-btn-accent rounded-xl px-5 py-3 text-sm font-bold"
               >
-                Download sheet (JPG)
-              </button>
-              <button
-                onClick={() => downloadSheet("image/png")}
-                disabled={layout.capacity === 0}
-                className="nm-btn rounded-xl px-5 py-3 text-sm font-semibold"
-              >
-                PNG
-              </button>
-              <button onClick={downloadSingle} className="nm-btn rounded-xl px-5 py-3 text-sm font-semibold">
-                Single photo
+                Download PDF — print this
               </button>
               <button
                 onClick={print}
                 disabled={layout.capacity === 0}
                 className="nm-btn rounded-xl px-5 py-3 text-sm font-semibold"
               >
-                Print
+                Open &amp; print
+              </button>
+            </div>
+
+            <p className="mb-4 text-xs text-nm-muted">
+              For a photo lab, send an image file instead:
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={() => downloadSheet("image/jpeg")}
+                disabled={layout.capacity === 0}
+                className="nm-btn rounded-xl px-4 py-2.5 text-sm font-semibold"
+              >
+                JPG
+              </button>
+              <button
+                onClick={() => downloadSheet("image/png")}
+                disabled={layout.capacity === 0}
+                className="nm-btn rounded-xl px-4 py-2.5 text-sm font-semibold"
+              >
+                PNG
+              </button>
+              <button
+                onClick={downloadSingle}
+                className="nm-btn rounded-xl px-4 py-2.5 text-sm font-semibold"
+              >
+                Single photo
               </button>
             </div>
 
             {notice && <Alert tone="warn">{notice}</Alert>}
 
             <div className="nm-inset mt-5 rounded-xl p-4 text-xs leading-relaxed text-nm-muted">
-              <p className="mb-1.5 font-bold text-nm-text">Getting the size right</p>
-              The file is {mmToPx(layout.sheetW, dpi)} × {mmToPx(layout.sheetH, dpi)} px tagged at{" "}
-              {dpi} DPI, so a photo lab printing it to {paper.label} needs no adjustment. If you print
-              at home, set the scale to <strong className="text-nm-text">100%</strong> and turn off
-              “fit to page” — that setting is the usual reason photos come out a few millimetres
-              short. Measure one photo afterwards: it should be exactly {photo.w} × {photo.h} mm.
+              <p className="mb-1.5 font-bold text-nm-text">Printing at the right size</p>
+              <p className="mb-2">
+                <strong className="text-nm-text">Use the PDF.</strong> Its page is exactly{" "}
+                {layout.sheetW} × {layout.sheetH} mm, so any PDF reader prints it at the correct
+                size. In the print dialog choose{" "}
+                <strong className="text-nm-text">Actual size</strong> (or “100%”, or “Scale: None”)
+                — never “Fit to page” or “Full page photo”.
+              </p>
+              <p>
+                The JPG and PNG are {mmToPx(layout.sheetW, dpi)} × {mmToPx(layout.sheetH, dpi)} px
+                tagged at {dpi} DPI, which is what a photo lab wants for a {paper.label} print. They
+                are less reliable for home printing, because image viewers often rescale them to
+                fill the paper. Measure one photo after printing: it should be exactly {photo.w} ×{" "}
+                {photo.h} mm.
+              </p>
             </div>
           </Panel>
         </div>

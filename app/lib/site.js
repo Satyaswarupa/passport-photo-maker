@@ -60,7 +60,7 @@ export const faqs = [
   },
   {
     q: "Will the printed photo be exactly 35 × 45 mm?",
-    a: "The exported file carries real DPI metadata, so a photo lab printing it to 4R needs no adjustment. If you print at home, set the scale to 100% and turn off 'fit to page' — that setting is the usual reason photos come out a few millimetres short. Measure one photo after the first print.",
+    a: "Yes, if you print the PDF. Its page is exactly the size of the photo paper, so any PDF reader prints it correctly — just choose 'Actual size' rather than 'Fit to page'. The JPG is best sent to a photo lab, where the pixel dimensions match 4R exactly. Printing an image file at home is less reliable, because viewers often rescale it to fill the paper. Measure one photo after the first print.",
   },
   {
     q: "What background colour should I use for a passport photo?",
@@ -81,5 +81,5 @@ export const howToSteps = [
   { name: "Let the AI remove the background", text: "A segmentation model cuts out the subject in your browser." },
   { name: "Pick a background colour", text: "Choose white, light blue, grey or any custom colour." },
   { name: "Choose the size", text: "Select 35 × 45 mm or another passport size, and your photo paper." },
-  { name: "Download or print", text: "Get a print-ready sheet of 8 photos with cutting guides." },
+  { name: "Download or print", text: "Get a print-ready PDF of 8 photos with cutting guides." },
 ];
