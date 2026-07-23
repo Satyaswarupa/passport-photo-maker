@@ -1,7 +1,9 @@
 import PassportStudio from "./components/PassportStudio";
 import Footer from "./components/Footer";
+import Typewriter from "./components/Typewriter";
+import Underline from "./components/Underline";
 import { PHOTO_SIZES } from "./lib/photoSizes";
-import { author, faqs, howToSteps, site } from "./lib/site";
+import { author, faqs, howToSteps, site, useCases } from "./lib/site";
 
 /**
  * Server component: everything except the editor itself is static HTML, so
@@ -122,8 +124,18 @@ export default function Home() {
           </p>
           <h1 className="text-4xl font-extrabold leading-[1.12] tracking-tight text-nm-text sm:text-5xl">
             Passport size photo maker with{" "}
-            <span className="text-nm-accent">AI background removal</span>
+            <Underline className="text-nm-accent">AI background removal</Underline>
           </h1>
+
+          <p className="mt-8 flex flex-wrap items-center justify-center gap-x-2 text-lg font-semibold text-nm-text sm:text-xl">
+            <span>Ready for</span>
+            <Typewriter
+              words={useCases}
+              srLabel={`Ready for ${useCases.slice(0, -1).join(", ")} and ${useCases.at(-1)}.`}
+              className="text-nm-accent"
+            />
+          </p>
+
           <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-nm-muted sm:text-lg">
             Upload a photo, let the AI cut out the background, pick a solid colour and size, then
             download a print-ready <strong className="text-nm-text">4R sheet with 8 photos</strong>{" "}

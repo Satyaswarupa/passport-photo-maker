@@ -27,6 +27,17 @@ export const site = {
   ],
 };
 
+/** Phrases cycled by the hero typewriter. The first one is server-rendered. */
+export const useCases = [
+  "passport applications",
+  "visa forms",
+  "PAN card & Aadhaar",
+  "driving licences",
+  "student ID cards",
+  "job applications",
+  "exam admit cards",
+];
+
 export const author = {
   // Derived from the project owner's email — edit this line to correct it.
   name: "Satyaswarupa Parida",
