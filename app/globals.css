@@ -1,0 +1,300 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   Neumorphic design tokens
+
+   Neumorphism works by giving every surface the *same* colour as the page and
+   separating it with light and dark shadows instead of borders. The two
+   shadow colours must be a lighter and darker sibling of the background, or
+   the illusion collapses. Text colours stay high-contrast on purpose —
+   the soft look applies to surfaces, never to type.
+   ========================================================================== */
+
+:root {
+  --nm-bg: #e6e9ef;
+  --nm-light: #ffffff;
+  --nm-dark: #bcc2cd;
+  --nm-text: #2b3140;
+  --nm-muted: #6d7488;
+  --nm-accent: #4a6cf7;
+  --nm-accent-text: #ffffff;
+  --nm-danger: #d13d3d;
+  --nm-warn-bg: #f6ecd8;
+  --nm-warn-text: #8a5a12;
+
+  --nm-dist: 6px;
+  --nm-blur: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --nm-bg: #262a33;
+    --nm-light: #303542;
+    --nm-dark: #1a1d24;
+    --nm-text: #e8eaf0;
+    --nm-muted: #9aa2b5;
+    --nm-accent: #7d95ff;
+    --nm-accent-text: #10131a;
+    --nm-danger: #ff8080;
+    --nm-warn-bg: #38321f;
+    --nm-warn-text: #e5c684;
+  }
+}
+
+@theme inline {
+  --color-nm-bg: var(--nm-bg);
+  --color-nm-text: var(--nm-text);
+  --color-nm-muted: var(--nm-muted);
+  --color-nm-accent: var(--nm-accent);
+  --color-nm-danger: var(--nm-danger);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--nm-bg);
+  color: var(--nm-text);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --------------------------------------------------------------------------
+   Surfaces
+   -------------------------------------------------------------------------- */
+
+.nm-raised {
+  background: var(--nm-bg);
+  box-shadow:
+    var(--nm-dist) var(--nm-dist) var(--nm-blur) var(--nm-dark),
+    calc(var(--nm-dist) * -1) calc(var(--nm-dist) * -1) var(--nm-blur) var(--nm-light);
+}
+
+.nm-raised-sm {
+  background: var(--nm-bg);
+  box-shadow:
+    3px 3px 7px var(--nm-dark),
+    -3px -3px 7px var(--nm-light);
+}
+
+.nm-raised-lg {
+  background: var(--nm-bg);
+  box-shadow:
+    10px 10px 22px var(--nm-dark),
+    -10px -10px 22px var(--nm-light);
+}
+
+.nm-inset {
+  background: var(--nm-bg);
+  box-shadow:
+    inset 4px 4px 9px var(--nm-dark),
+    inset -4px -4px 9px var(--nm-light);
+}
+
+.nm-inset-sm {
+  background: var(--nm-bg);
+  box-shadow:
+    inset 2px 2px 5px var(--nm-dark),
+    inset -2px -2px 5px var(--nm-light);
+}
+
+/* --------------------------------------------------------------------------
+   Interactive elements — raised at rest, pressed in on click
+   -------------------------------------------------------------------------- */
+
+.nm-btn {
+  background: var(--nm-bg);
+  color: var(--nm-text);
+  box-shadow:
+    5px 5px 10px var(--nm-dark),
+    -5px -5px 10px var(--nm-light);
+  transition:
+    box-shadow 0.18s ease,
+    transform 0.18s ease,
+    color 0.18s ease;
+}
+
+.nm-btn:hover:not(:disabled) {
+  box-shadow:
+    7px 7px 14px var(--nm-dark),
+    -7px -7px 14px var(--nm-light);
+}
+
+.nm-btn:active:not(:disabled) {
+  box-shadow:
+    inset 4px 4px 8px var(--nm-dark),
+    inset -4px -4px 8px var(--nm-light);
+  transform: translateY(1px);
+}
+
+.nm-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow:
+    inset 2px 2px 5px var(--nm-dark),
+    inset -2px -2px 5px var(--nm-light);
+}
+
+/* Selected / toggled-on state reads as pressed into the surface. */
+.nm-btn-active {
+  color: var(--nm-accent);
+  box-shadow:
+    inset 4px 4px 8px var(--nm-dark),
+    inset -4px -4px 8px var(--nm-light);
+}
+
+.nm-btn-accent {
+  background: var(--nm-accent);
+  color: var(--nm-accent-text);
+  box-shadow:
+    5px 5px 12px var(--nm-dark),
+    -5px -5px 12px var(--nm-light);
+}
+
+.nm-btn-accent:hover:not(:disabled) {
+  filter: brightness(1.07);
+  box-shadow:
+    7px 7px 16px var(--nm-dark),
+    -7px -7px 16px var(--nm-light);
+}
+
+.nm-btn-accent:active:not(:disabled) {
+  filter: brightness(0.96);
+  box-shadow:
+    inset 4px 4px 9px rgba(0, 0, 0, 0.35),
+    inset -2px -2px 6px rgba(255, 255, 255, 0.18);
+  transform: translateY(1px);
+}
+
+/* --------------------------------------------------------------------------
+   Form controls
+   -------------------------------------------------------------------------- */
+
+.nm-select {
+  appearance: none;
+  background-color: var(--nm-bg);
+  color: var(--nm-text);
+  box-shadow:
+    inset 3px 3px 7px var(--nm-dark),
+    inset -3px -3px 7px var(--nm-light);
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    calc(100% - 17px) calc(50% + 1px),
+    calc(100% - 12px) calc(50% + 1px);
+  background-size:
+    5px 5px,
+    5px 5px;
+  background-repeat: no-repeat;
+}
+
+.nm-select option {
+  background: var(--nm-bg);
+  color: var(--nm-text);
+}
+
+/* Range slider styled as a groove with a raised thumb. */
+.nm-range {
+  appearance: none;
+  height: 10px;
+  border-radius: 9999px;
+  background: var(--nm-bg);
+  box-shadow:
+    inset 2px 2px 5px var(--nm-dark),
+    inset -2px -2px 5px var(--nm-light);
+}
+
+.nm-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--nm-bg);
+  border: 2px solid var(--nm-accent);
+  box-shadow:
+    2px 2px 5px var(--nm-dark),
+    -2px -2px 5px var(--nm-light);
+  cursor: pointer;
+}
+
+.nm-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--nm-bg);
+  border: 2px solid var(--nm-accent);
+  box-shadow:
+    2px 2px 5px var(--nm-dark),
+    -2px -2px 5px var(--nm-light);
+  cursor: pointer;
+}
+
+/* Checkbox drawn as a small inset well that fills when checked. */
+.nm-check {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  background: var(--nm-bg);
+  box-shadow:
+    inset 2px 2px 4px var(--nm-dark),
+    inset -2px -2px 4px var(--nm-light);
+  cursor: pointer;
+  display: grid;
+  place-content: center;
+  transition: box-shadow 0.18s ease;
+}
+
+.nm-check::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  transform: scale(0);
+  background: var(--nm-accent);
+  transition: transform 0.18s ease;
+}
+
+.nm-check:checked::after {
+  transform: scale(1);
+}
+
+/* --------------------------------------------------------------------------
+   Accessibility — soft UI must not mean invisible focus
+   -------------------------------------------------------------------------- */
+
+:where(button, select, input, a, [tabindex]):focus-visible {
+  outline: 2px solid var(--nm-accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Transparency checkerboard behind cut-out photos. */
+.nm-checker {
+  background-image:
+    linear-gradient(45deg, var(--nm-dark) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--nm-dark) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--nm-dark) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--nm-dark) 75%);
+  background-size: 16px 16px;
+  background-position:
+    0 0,
+    0 8px,
+    8px -8px,
+    -8px 0;
+}
